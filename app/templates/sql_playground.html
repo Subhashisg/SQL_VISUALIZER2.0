@@ -315,7 +315,10 @@ document.getElementById('explainBtn').addEventListener('click', async function()
         if (result.error) {
             showError(result.error);
         } else {
-            showExplanation(result.explanation);
+            showExplanation({
+                text: result.explanation,
+                format: result.format || 'text'
+            });
         }
     } catch (error) {
         showError('Network error: ' + error.message);
@@ -353,7 +356,10 @@ document.getElementById('improveBtn').addEventListener('click', async function()
         if (result.error) {
             showError(result.error);
         } else {
-            showExplanation(result.suggestions);
+            showExplanation({
+                text: result.suggestions,
+                format: result.format || 'text'
+            });
         }
     } catch (error) {
         showError('Network error: ' + error.message);
@@ -432,12 +438,19 @@ function showError(error) {
     resultsContent.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> <strong>Error:</strong> ${error}</div>`;
 }
 
-function showExplanation(explanation) {
+function showExplanation(content) {
     const explanationCard = document.getElementById('explanationCard');
     const explanationContent = document.getElementById('explanationContent');
     
     explanationCard.style.display = 'block';
-    explanationContent.innerHTML = `<div class="prose">${explanation.replace(/\n/g, '<br>')}</div>`;
+    
+    // Check if content is a string (old format) or an object with format property
+    if (typeof content === 'object' && content.text && content.format === 'markdown') {
+        explanationContent.innerHTML = `<div class="markdown-content">${marked.parse(content.text)}</div>`;
+    } else if (typeof content === 'string') {
+        // Fallback for non-markdown content
+        explanationContent.innerHTML = `<div class="prose">${content.replace(/\n/g, '<br>')}</div>`;
+    }
 }
 
 function hideResults() {

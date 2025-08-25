@@ -126,3 +126,25 @@ def get_table_info(table_name):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/generate-learning-content', methods=['POST'])
+@login_required
+def generate_learning_content():
+    try:
+        data = request.get_json()
+        topic = data.get('topic')
+        
+        if not topic:
+            return jsonify({'error': 'Topic is required'}), 400
+            
+        api_key = current_user.get_gemini_api_key()
+        if not api_key:
+            return jsonify({'error': 'Gemini API key not configured'}), 400
+            
+        gemini_service = GeminiService(api_key)
+        result = gemini_service.generate_learning_content(topic)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

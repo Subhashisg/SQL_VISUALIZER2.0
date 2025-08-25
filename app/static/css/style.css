@@ -48,6 +48,128 @@ body {
     font-weight: 400;
 }
 
+/* Markdown Content Styles */
+.markdown-content {
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.markdown-content h1 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.markdown-content h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.markdown-content h3 {
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+.markdown-content p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.markdown-content code {
+    background: var(--bg-tertiary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 0.9em;
+}
+
+.markdown-content pre {
+    background: var(--dark-medium);
+    color: var(--light-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.markdown-content pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+.markdown-content blockquote {
+    border-left: 4px solid var(--primary-light);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: var(--text-muted);
+}
+
+.markdown-content ul, .markdown-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.markdown-content li {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.markdown-content th {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.markdown-content td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+}
+
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+/* Syntax highlighting improvements for code blocks */
+.markdown-content pre code {
+    display: block;
+    line-height: 1.5;
+}
+
+.markdown-content pre code .keyword {
+    color: #c792ea;
+}
+
+.markdown-content pre code .string {
+    color: #c3e88d;
+}
+
+.markdown-content pre code .number {
+    color: #f78c6c;
+}
+
+.markdown-content pre code .comment {
+    color: #546e7a;
+}
+
 /* Navigation Bar */
 .navbar {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;

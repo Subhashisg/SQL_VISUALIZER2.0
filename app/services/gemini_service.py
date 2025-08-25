@@ -76,13 +76,20 @@ class GeminiService:
         """Provide detailed explanation of SQL query"""
         try:
             system_instruction = """
-            You are a SQL tutor. Explain the provided SQL query in a clear, educational manner.
+            You are a SQL tutor. Explain the provided SQL query in a clear, educational manner using Markdown formatting.
             Include:
             1. What the query does (purpose)
             2. Step-by-step breakdown of each clause
             3. Key concepts and keywords used
             4. Expected output format
             5. Any best practices or potential improvements
+            
+            Format your response using Markdown:
+            - Use ## for major sections
+            - Use backticks for SQL code and keywords
+            - Use bullet points for lists
+            - Use bold and italic for emphasis
+            - Use code blocks for example queries
             
             Make it beginner-friendly but comprehensive.
             """
@@ -92,10 +99,10 @@ class GeminiService:
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction
                 ),
-                contents=f"Explain this SQL query: {query}"
+                contents=f"Explain this SQL query in markdown format: {query}"
             )
             
-            return {'explanation': response.text}
+            return {'explanation': response.text, 'format': 'markdown'}
             
         except Exception as e:
             return {'error': f'Error explaining query: {str(e)}'}
@@ -104,13 +111,21 @@ class GeminiService:
         """Suggest improvements for SQL query"""
         try:
             system_instruction = """
-            You are a database optimization expert. Analyze the provided SQL query and suggest improvements.
+            You are a database optimization expert. Analyze the provided SQL query and suggest improvements using Markdown formatting.
             Focus on:
             1. Performance optimizations
             2. Best practices
             3. Code readability
             4. Security considerations
             5. Alternative approaches
+            
+            Format your response using Markdown:
+            - Use ## for major sections
+            - Use backticks for SQL code and keywords
+            - Use bullet points for lists
+            - Use bold and italic for emphasis
+            - Use code blocks for example queries
+            - Use tables when comparing options
             
             Provide specific suggestions with explanations.
             """
@@ -120,10 +135,10 @@ class GeminiService:
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction
                 ),
-                contents=f"Suggest improvements for this SQL query: {query}"
+                contents=f"Suggest improvements for this SQL query in markdown format: {query}"
             )
             
-            return {'suggestions': response.text}
+            return {'suggestions': response.text, 'format': 'markdown'}
             
         except Exception as e:
             return {'error': f'Error generating suggestions: {str(e)}'}
@@ -156,7 +171,7 @@ class GeminiService:
         """Generate educational content for SQL topics"""
         try:
             system_instruction = """
-            You are a SQL educator. Create comprehensive learning content for the requested SQL topic.
+            You are a SQL educator. Create comprehensive learning content for the requested SQL topic using Markdown formatting.
             Include:
             1. Clear explanation of the concept
             2. Syntax and examples
@@ -164,6 +179,17 @@ class GeminiService:
             4. Best practices
             5. Common mistakes to avoid
             6. Practice exercises
+            
+            Format your response using Markdown:
+            - Use # for the main title
+            - Use ## for major sections
+            - Use ### for subsections
+            - Use backticks for SQL code and keywords
+            - Use bullet points for lists
+            - Use bold and italic for emphasis
+            - Use code blocks for example queries
+            - Use tables for comparing concepts
+            - Use > for important notes or tips
             
             Make it structured and easy to follow.
             """
@@ -173,10 +199,10 @@ class GeminiService:
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction
                 ),
-                contents=f"Create learning content for SQL topic: {topic}"
+                contents=f"Create learning content for SQL topic: {topic} in markdown format"
             )
             
-            return {'content': response.text}
+            return {'content': response.text, 'format': 'markdown'}
             
         except Exception as e:
             return {'error': f'Error generating learning content: {str(e)}'}

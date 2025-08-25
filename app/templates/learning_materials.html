@@ -2,6 +2,11 @@
 
 {% block title %}Learning Materials - SQL Visualizer{% endblock %}
 
+{% block extra_head %}
+<!-- Custom JavaScript for learning materials -->
+<script src="{{ url_for('static', filename='js/learning.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
@@ -10,6 +15,22 @@
                 <i class="fas fa-book"></i> SQL Learning Materials
                 <small class="text-muted">Master SQL with AI-powered guidance</small>
             </h2>
+        </div>
+    </div>
+    
+    <!-- Learning Content Area -->
+    <div id="learningContentArea" class="row mb-5" style="display: none;">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book-reader"></i> Learning Content
+                    </h5>
+                </div>
+                <div class="card-body" id="learningContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
     
