@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Register - SQL Visualizer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg mt-5">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3><i class="fas fa-user-plus"></i> Create Account</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i> Username
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   required minlength="3" maxlength="80">
+                            <div class="form-text">Choose a unique username (3-80 characters)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="form-text">We'll never share your email with anyone</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   required minlength="6" maxlength="200">
+                            <div class="form-text">Minimum 6 characters</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label">
+                                <i class="fas fa-lock"></i> Confirm Password
+                            </label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                   required minlength="6" maxlength="200">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Already have an account? 
+                            <a href="{{ url_for('auth.login') }}" class="text-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Information about API key requirement -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title text-warning">
+                        <i class="fas fa-info-circle"></i> Google Gemini API Key Required
+                    </h6>
+                    <p class="card-text small">
+                        To use the AI features, you'll need a Google Gemini API key. 
+                        After registration, you can add your API key in the settings. 
+                        Get your free API key from the 
+                        <a href="https://makersuite.google.com/app/apikey" target="_blank">
+                            Google AI Studio
+                        </a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    password.addEventListener('change', validatePassword);
+    confirmPassword.addEventListener('keyup', validatePassword);
+});
+</script>
+{% endblock %}

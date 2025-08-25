@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}API Key Required - SQL Visualizer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="text-center mt-5">
+                <div class="mb-4">
+                    <i class="fas fa-key fa-4x text-warning"></i>
+                </div>
+                
+                <h2 class="mb-3">Google Gemini API Key Required</h2>
+                
+                <p class="lead text-muted mb-4">
+                    To use the AI-powered features of SQL Visualizer, you need to configure your Google Gemini API key.
+                </p>
+                
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">
+                            <i class="fas fa-info-circle"></i> How to get your API key:
+                        </h5>
+                        
+                        <ol class="text-start">
+                            <li class="mb-2">
+                                Visit the <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-primary">
+                                    Google AI Studio <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </li>
+                            <li class="mb-2">Sign in with your Google account</li>
+                            <li class="mb-2">Create a new API key or use an existing one</li>
+                            <li class="mb-2">Copy your API key</li>
+                            <li>Add it to your account settings</li>
+                        </ol>
+                        
+                        <div class="alert alert-info mt-3">
+                            <small>
+                                <i class="fas fa-shield-alt"></i>
+                                <strong>Security:</strong> Your API key is encrypted and stored securely. 
+                                We never share or expose your API key to anyone.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('auth.settings') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cog"></i> Configure API Key
+                    </a>
+                    
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-lg ms-2">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+                
+                <div class="mt-4">
+                    <small class="text-muted">
+                        Need help? Check our <a href="#" class="text-primary">documentation</a> 
+                        or <a href="#" class="text-primary">contact support</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

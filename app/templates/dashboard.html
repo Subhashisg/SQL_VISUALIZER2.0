@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SQL Visualizer{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> Welcome back, {{ current_user.username }}!
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Total Queries</h6>
+                            <h3>{{ recent_queries|length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-database fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">AI Generated Tables</h6>
+                            <h3>{{ generated_tables|length }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-table fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">API Key Status</h6>
+                            <h5>
+                                {% if has_api_key %}
+                                <i class="fas fa-check-circle"></i> Configured
+                                {% else %}
+                                <i class="fas fa-exclamation-triangle"></i> Missing
+                                {% endif %}
+                            </h5>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-key fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Learning Progress</h6>
+                            <h5>Beginner</h5>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- Recent Queries -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Recent Queries
+                    </h5>
+                    <a href="{{ url_for('main.query_history') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_queries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Query</th>
+                                        <th>Type</th>
+                                        <th>Results</th>
+                                        <th>Executed</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for query in recent_queries[:5] %}
+                                    <tr>
+                                        <td>
+                                            <code class="small">
+                                                {{ query.query_text[:50] }}{% if query.query_text|length > 50 %}...{% endif %}
+                                            </code>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'primary' if query.query_type == 'SELECT' else 'secondary' }}">
+                                                {{ query.query_type }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if query.error_message %}
+                                                <span class="text-danger">
+                                                    <i class="fas fa-exclamation-triangle"></i> Error
+                                                </span>
+                                            {% else %}
+                                                <span class="text-success">
+                                                    {{ query.result_count or 0 }} rows
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ query.created_at.strftime('%m/%d %H:%M') }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" 
+                                                    onclick="viewQueryDetails({{ query.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No queries yet</h6>
+                            <p class="text-muted">Start by visiting the SQL Playground!</p>
+                            <a href="{{ url_for('main.sql_playground') }}" class="btn btn-primary">
+                                <i class="fas fa-play"></i> Start Learning SQL
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions & Generated Tables -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if not has_api_key %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Setup Required:</strong> Please add your Gemini API key to enable AI features.
+                    </div>
+                    <a href="{{ url_for('auth.settings') }}" class="btn btn-warning btn-block mb-2">
+                        <i class="fas fa-cog"></i> Configure API Key
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('main.sql_playground') }}" class="btn btn-primary btn-block mb-2">
+                        <i class="fas fa-play"></i> SQL Playground
+                    </a>
+                    <a href="{{ url_for('main.learning_materials') }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-book"></i> Learning Materials
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('main.query_history') }}" class="btn btn-outline-secondary btn-block">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Generated Tables -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table"></i> AI Generated Tables
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if generated_tables %}
+                        <div class="list-group list-group-flush">
+                            {% for table in generated_tables[:5] %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ table.table_name }}</h6>
+                                        <small class="text-muted">
+                                            {{ table.sample_data_count }} rows • 
+                                            {{ table.created_at.strftime('%m/%d') }}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="viewTableSchema('{{ table.table_name }}')">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if generated_tables|length > 5 %}
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                and {{ generated_tables|length - 5 }} more tables...
+                            </small>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-table fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small">No tables generated yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Query Details Modal -->
+<div class="modal fade" id="queryDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Query Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="queryDetailsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Schema Modal -->
+<div class="modal fade" id="tableSchemaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Table Schema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="tableSchemaContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function viewQueryDetails(queryId) {
+    const modal = new bootstrap.Modal(document.getElementById('queryDetailsModal'));
+    const content = document.getElementById('queryDetailsContent');
+    
+    content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    modal.show();
+    
+    try {
+        // In a real implementation, you would fetch query details from an API
+        content.innerHTML = '<p>Query details would be loaded here...</p>';
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error loading query details</div>';
+    }
+}
+
+async function viewTableSchema(tableName) {
+    const modal = new bootstrap.Modal(document.getElementById('tableSchemaModal'));
+    const content = document.getElementById('tableSchemaContent');
+    
+    content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    modal.show();
+    
+    try {
+        const response = await fetch(`/api/get-table-info/${tableName}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            content.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            return;
+        }
+        
+        let schemaHtml = '<h6>Table: ' + data.table_name + '</h6>';
+        schemaHtml += '<div class="table-responsive">';
+        schemaHtml += '<table class="table table-sm">';
+        schemaHtml += '<thead><tr><th>Column</th><th>Type</th><th>Constraints</th></tr></thead>';
+        schemaHtml += '<tbody>';
+        
+        data.schema.forEach(column => {
+            schemaHtml += `<tr>
+                <td><code>${column.column}</code></td>
+                <td>${column.type}</td>
+                <td>${column.constraints || ''}</td>
+            </tr>`;
+        });
+        
+        schemaHtml += '</tbody></table></div>';
+        schemaHtml += `<p class="text-muted small">Created: ${data.created_at} • ${data.sample_data_count} sample rows</p>`;
+        
+        content.innerHTML = schemaHtml;
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error loading table schema</div>';
+    }
+}
+</script>
+{% endblock %}

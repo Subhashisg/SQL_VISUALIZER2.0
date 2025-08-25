@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Materials - SQL Visualizer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-book"></i> SQL Learning Materials
+                <small class="text-muted">Master SQL with AI-powered guidance</small>
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Learning Path -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-route"></i> Your Learning Path
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="learning-step completed">
+                                <div class="step-icon bg-success">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <h6>Basics</h6>
+                                <small class="text-muted">SELECT, WHERE, ORDER BY</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="learning-step current">
+                                <div class="step-icon bg-warning">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <h6>Joins</h6>
+                                <small class="text-muted">INNER, LEFT, RIGHT, FULL</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="learning-step">
+                                <div class="step-icon bg-secondary">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h6>Advanced</h6>
+                                <small class="text-muted">Subqueries, CTEs, Window Functions</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="learning-step">
+                                <div class="step-icon bg-secondary">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h6>Optimization</h6>
+                                <small class="text-muted">Indexes, Performance Tuning</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Learning Topics -->
+    <div class="row">
+        <!-- Beginner Topics -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-seedling"></i> Beginner
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('basic-select')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Basic SELECT</strong><br>
+                                    <small class="text-muted">Retrieve data from tables</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-success"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('where-clause')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>WHERE Clause</strong><br>
+                                    <small class="text-muted">Filter your results</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-success"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('sorting')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>ORDER BY</strong><br>
+                                    <small class="text-muted">Sort your data</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-success"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('aggregate-functions')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Aggregate Functions</strong><br>
+                                    <small class="text-muted">COUNT, SUM, AVG, MIN, MAX</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-success"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Intermediate Topics -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-layer-group"></i> Intermediate
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('joins')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>JOINs</strong><br>
+                                    <small class="text-muted">Combine multiple tables</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-warning"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('group-by')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>GROUP BY</strong><br>
+                                    <small class="text-muted">Aggregate data by groups</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-warning"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('having')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>HAVING Clause</strong><br>
+                                    <small class="text-muted">Filter grouped results</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-warning"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('subqueries')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Subqueries</strong><br>
+                                    <small class="text-muted">Nested SELECT statements</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-warning"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Advanced Topics -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-rocket"></i> Advanced
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('cte')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Common Table Expressions</strong><br>
+                                    <small class="text-muted">WITH clauses</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-danger"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('window-functions')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Window Functions</strong><br>
+                                    <small class="text-muted">ROW_NUMBER, RANK, LEAD, LAG</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-danger"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('advanced-joins')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Advanced JOINs</strong><br>
+                                    <small class="text-muted">Self joins, cross joins</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-danger"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadLearningTopic('performance')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Performance Optimization</strong><br>
+                                    <small class="text-muted">Indexes, query planning</small>
+                                </div>
+                                <i class="fas fa-arrow-right text-danger"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SQL Reference -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bookmark"></i> Quick SQL Reference
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Syntax:</h6>
+                            <pre><code>SELECT column1, column2
+FROM table_name
+WHERE condition
+ORDER BY column1;</code></pre>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Common Functions:</h6>
+                            <pre><code>COUNT(*) - Count rows
+AVG(column) - Average value
+SUM(column) - Sum values
+MAX(column) - Maximum value
+MIN(column) - Minimum value</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Learning Content Modal -->
+<div class="modal fade" id="learningModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Learning Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="learningContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('main.sql_playground') }}" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Try in Playground
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.learning-step {
+    position: relative;
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem auto;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.learning-step.completed .step-icon {
+    background-color: var(--bs-success) !important;
+}
+
+.learning-step.current .step-icon {
+    background-color: var(--bs-warning) !important;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    overflow-x: auto;
+}
+
+code {
+    color: #e83e8c;
+}
+</style>
+
+<script>
+async function loadLearningTopic(topic) {
+    const modal = new bootstrap.Modal(document.getElementById('learningModal'));
+    const content = document.getElementById('learningContent');
+    
+    content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading learning content...</div>';
+    modal.show();
+    
+    try {
+        // In a real implementation, you would call the AI service to generate learning content
+        const exampleContent = getLearningContent(topic);
+        content.innerHTML = exampleContent;
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error loading learning content</div>';
+    }
+}
+
+function getLearningContent(topic) {
+    // This would normally call your AI service
+    const content = {
+        'basic-select': `
+            <h4>Basic SELECT Statement</h4>
+            <p>The SELECT statement is used to retrieve data from a database table.</p>
+            
+            <h6>Syntax:</h6>
+            <pre><code>SELECT column1, column2, ...
+FROM table_name;</code></pre>
+            
+            <h6>Examples:</h6>
+            <pre><code>-- Select all columns
+SELECT * FROM employees;
+
+-- Select specific columns
+SELECT name, email FROM employees;
+
+-- Select with alias
+SELECT name AS employee_name FROM employees;</code></pre>
+            
+            <div class="alert alert-info">
+                <strong>Tip:</strong> Use specific column names instead of * for better performance!
+            </div>
+        `,
+        
+        'where-clause': `
+            <h4>WHERE Clause</h4>
+            <p>The WHERE clause is used to filter records based on specified conditions.</p>
+            
+            <h6>Syntax:</h6>
+            <pre><code>SELECT column1, column2, ...
+FROM table_name
+WHERE condition;</code></pre>
+            
+            <h6>Examples:</h6>
+            <pre><code>-- Numeric comparison
+SELECT * FROM employees WHERE salary > 50000;
+
+-- Text comparison
+SELECT * FROM employees WHERE department = 'Engineering';
+
+-- Multiple conditions
+SELECT * FROM employees 
+WHERE salary > 50000 AND department = 'Engineering';</code></pre>
+        `,
+        
+        'joins': `
+            <h4>SQL JOINs</h4>
+            <p>JOINs are used to combine rows from two or more tables based on a related column.</p>
+            
+            <h6>Types of JOINs:</h6>
+            <ul>
+                <li><strong>INNER JOIN:</strong> Returns records that have matching values in both tables</li>
+                <li><strong>LEFT JOIN:</strong> Returns all records from the left table</li>
+                <li><strong>RIGHT JOIN:</strong> Returns all records from the right table</li>
+                <li><strong>FULL JOIN:</strong> Returns all records when there is a match in either table</li>
+            </ul>
+            
+            <h6>Example:</h6>
+            <pre><code>SELECT e.name, d.department_name
+FROM employees e
+INNER JOIN departments d ON e.department_id = d.id;</code></pre>
+        `
+    };
+    
+    return content[topic] || '<p>Learning content for this topic will be available soon!</p>';
+}
+</script>
+{% endblock %}

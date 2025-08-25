@@ -1,0 +1,621 @@
+1. Text generation
+//python
+from google import genai
+
+client = genai.Client()
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="How does AI work?"
+)
+print(response.text)
+// rest
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "How does AI work?"
+          }
+        ]
+      }
+    ]
+  }'
+
+1.2 - Thinking
+//python
+from google import genai
+from google.genai import types
+
+client = genai.Client()
+
+response = client.models.generate_content(
+    model="gemini-2.5-pro",
+    contents="Provide a list of 3 famous physicists and their key contributions",
+    config=types.GenerateContentConfig(
+        thinking_config=types.ThinkingConfig(thinking_budget=1024)
+        # Turn off thinking:
+        # thinking_config=types.ThinkingConfig(thinking_budget=0)
+        # Turn on dynamic thinking:
+        # thinking_config=types.ThinkingConfig(thinking_budget=-1)
+    ),
+)
+
+print(response.text)
+//rest
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent" \
+-H "x-goog-api-key: $GEMINI_API_KEY" \
+-H 'Content-Type: application/json' \
+-X POST \
+-d '{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "Provide a list of 3 famous physicists and their key contributions"
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "thinkingConfig": {
+          "thinkingBudget": 1024
+          # Thinking off:
+          # "thinkingBudget": 0
+          # Turn on dynamic thinking:
+          # "thinkingBudget": -1
+    }
+  }
+}'
+
+2. System instructions and other configurations
+//python
+from google import genai
+from google.genai import types
+
+client = genai.Client()
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    config=types.GenerateContentConfig(
+        system_instruction="You are a cat. Your name is Neko."),
+    contents="Hello there"
+)
+
+print(response.text)
+
+//rest
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "system_instruction": {
+      "parts": [
+        {
+          "text": "You are a cat. Your name is Neko."
+        }
+      ]
+    },
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Hello there"
+          }
+        ]
+      }
+    ]
+  }'
+
+3. Multimodal inputs
+//python
+from PIL import Image
+from google import genai
+
+client = genai.Client()
+
+image = Image.open("/path/to/organ.png")
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=[image, "Tell me about this instrument"]
+)
+print(response.text)
+//rest
+# Use a temporary file to hold the base64 encoded image data
+TEMP_B64=$(mktemp)
+trap 'rm -f "$TEMP_B64"' EXIT
+base64 $B64FLAGS $IMG_PATH > "$TEMP_B64"
+
+# Use a temporary file to hold the JSON payload
+TEMP_JSON=$(mktemp)
+trap 'rm -f "$TEMP_JSON"' EXIT
+
+cat > "$TEMP_JSON" << EOF
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "Tell me about this instrument"
+        },
+        {
+          "inline_data": {
+            "mime_type": "image/jpeg",
+            "data": "$(cat "$TEMP_B64")"
+          }
+        }
+      ]
+    }
+  ]
+}
+EOF
+
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d "@$TEMP_JSON"
+
+4. Streaming responses- By default, the model returns a response only after the entire generation process is complete.For more fluid interactions, use streaming to receive GenerateContentResponse instances incrementally as they're generated.
+//python
+from google import genai
+
+client = genai.Client()
+
+response = client.models.generate_content_stream(
+    model="gemini-2.5-flash",
+    contents=["Explain how AI works"]
+)
+for chunk in response:
+    print(chunk.text, end="")
+
+//rest
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  --no-buffer \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Explain how AI works"
+          }
+        ]
+      }
+    ]
+  }'
+5. Multi-turn conversations (Chat)
+//python
+from google import genai
+
+client = genai.Client()
+chat = client.chats.create(model="gemini-2.5-flash")
+
+response = chat.send_message("I have 2 dogs in my house.")
+print(response.text)
+
+response = chat.send_message("How many paws are in my house?")
+print(response.text)
+
+for message in chat.get_history():
+    print(f'role - {message.role}',end=": ")
+    print(message.parts[0].text)
+
+ // rest
+ curl https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent \
+   -H "x-goog-api-key: $GEMINI_API_KEY" \
+   -H 'Content-Type: application/json' \
+   -X POST \
+   -d '{
+     "contents": [
+       {
+         "role": "user",
+         "parts": [
+           {
+             "text": "Hello"
+           }
+         ]
+       },
+       {
+         "role": "model",
+         "parts": [
+           {
+             "text": "Great to meet you. What would you like to know?"
+           }
+         ]
+       },
+       {
+         "role": "user",
+         "parts": [
+           {
+             "text": "I have two dogs in my house. How many paws are in my house?"
+           }
+         ]
+       }
+     ]
+   }'
+6. Passing inline PDF data
+//python
+from google import genai
+from google.genai import types
+import httpx
+
+client = genai.Client()
+
+doc_url = "https://discovery.ucl.ac.uk/id/eprint/10089234/1/343019_3_art_0_py4t4l_convrt.pdf"
+
+# Retrieve and encode the PDF byte
+doc_data = httpx.get(doc_url).content
+
+prompt = "Summarize this document"
+response = client.models.generate_content(
+  model="gemini-2.5-flash",
+  contents=[
+      types.Part.from_bytes(
+        data=doc_data,
+        mime_type='application/pdf',
+      ),
+      prompt])
+print(response.text)
+//rest
+DOC_URL="https://discovery.ucl.ac.uk/id/eprint/10089234/1/343019_3_art_0_py4t4l_convrt.pdf"
+PROMPT="Summarize this document"
+DISPLAY_NAME="base64_pdf"
+
+# Download the PDF
+wget -O "${DISPLAY_NAME}.pdf" "${DOC_URL}"
+
+# Check for FreeBSD base64 and set flags accordingly
+if [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then
+  B64FLAGS="--input"
+else
+  B64FLAGS="-w0"
+fi
+
+# Base64 encode the PDF
+ENCODED_PDF=$(base64 $B64FLAGS "${DISPLAY_NAME}.pdf")
+
+# Generate content using the base64 encoded PDF
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GOOGLE_API_KEY" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+      "contents": [{
+        "parts":[
+          {"inline_data": {"mime_type": "application/pdf", "data": "'"$ENCODED_PDF"'"}},
+          {"text": "'$PROMPT'"}
+        ]
+      }]
+    }' 2> /dev/null > response.json
+
+cat response.json
+echo
+
+jq ".candidates[].content.parts[].text" response.json
+
+# Clean up the downloaded PDF
+rm "${DISPLAY_NAME}.pdf"
+
+
+6.1 You can also read a PDF from a local file for processing
+//python
+from google import genai
+from google.genai import types
+import pathlib
+
+client = genai.Client()
+
+# Retrieve and encode the PDF byte
+filepath = pathlib.Path('file.pdf')
+
+prompt = "Summarize this document"
+response = client.models.generate_content(
+  model="gemini-2.5-flash",
+  contents=[
+      types.Part.from_bytes(
+        data=filepath.read_bytes(),
+        mime_type='application/pdf',
+      ),
+      prompt])
+print(response.text)
+6.2 Passing multiple PDFs
+//python
+from google import genai
+import io
+import httpx
+
+client = genai.Client()
+
+doc_url_1 = "https://arxiv.org/pdf/2312.11805"
+doc_url_2 = "https://arxiv.org/pdf/2403.05530"
+
+# Retrieve and upload both PDFs using the File API
+doc_data_1 = io.BytesIO(httpx.get(doc_url_1).content)
+doc_data_2 = io.BytesIO(httpx.get(doc_url_2).content)
+
+sample_pdf_1 = client.files.upload(
+  file=doc_data_1,
+  config=dict(mime_type='application/pdf')
+)
+sample_pdf_2 = client.files.upload(
+  file=doc_data_2,
+  config=dict(mime_type='application/pdf')
+)
+
+prompt = "What is the difference between each of the main benchmarks between these two papers? Output these in a table."
+
+response = client.models.generate_content(
+  model="gemini-2.5-flash",
+  contents=[sample_pdf_1, sample_pdf_2, prompt])
+print(response.text)
+
+7. Passing inline image data
+//python
+  from google.genai import types
+
+  with open('path/to/small-sample.jpg', 'rb') as f:
+      image_bytes = f.read()
+
+  response = client.models.generate_content(
+    model='gemini-2.5-flash',
+    contents=[
+      types.Part.from_bytes(
+        data=image_bytes,
+        mime_type='image/jpeg',
+      ),
+      'Caption this image.'
+    ]
+  )
+
+  print(response.text)
+//rest
+IMG_PATH="/path/to/your/image1.jpg"
+
+if [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then
+B64FLAGS="--input"
+else
+B64FLAGS="-w0"
+fi
+
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+-H "x-goog-api-key: $GEMINI_API_KEY" \
+-H 'Content-Type: application/json' \
+-X POST \
+-d '{
+    "contents": [{
+    "parts":[
+        {
+            "inline_data": {
+            "mime_type":"image/jpeg",
+            "data": "'"$(base64 $B64FLAGS $IMG_PATH)"'"
+            }
+        },
+        {"text": "Caption this image."},
+    ]
+    }]
+}' 2> /dev/null
+
+7.1 Uploading images using the File API-For large files or to be able to use the same image file repeatedly, use the Files API
+//python
+from google import genai
+
+client = genai.Client()
+
+my_file = client.files.upload(file="path/to/sample.jpg")
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=[my_file, "Caption this image."],
+)
+
+print(response.text)
+//rest
+IMAGE_PATH="path/to/sample.jpg"
+MIME_TYPE=$(file -b --mime-type "${IMAGE_PATH}")
+NUM_BYTES=$(wc -c < "${IMAGE_PATH}")
+DISPLAY_NAME=IMAGE
+
+tmp_header_file=upload-header.tmp
+
+# Initial resumable request defining metadata.
+# The upload url is in the response headers dump them to a file.
+curl "https://generativelanguage.googleapis.com/upload/v1beta/files" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -D upload-header.tmp \
+  -H "X-Goog-Upload-Protocol: resumable" \
+  -H "X-Goog-Upload-Command: start" \
+  -H "X-Goog-Upload-Header-Content-Length: ${NUM_BYTES}" \
+  -H "X-Goog-Upload-Header-Content-Type: ${MIME_TYPE}" \
+  -H "Content-Type: application/json" \
+  -d "{'file': {'display_name': '${DISPLAY_NAME}'}}" 2> /dev/null
+
+upload_url=$(grep -i "x-goog-upload-url: " "${tmp_header_file}" | cut -d" " -f2 | tr -d "\r")
+rm "${tmp_header_file}"
+
+# Upload the actual bytes.
+curl "${upload_url}" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Length: ${NUM_BYTES}" \
+  -H "X-Goog-Upload-Offset: 0" \
+  -H "X-Goog-Upload-Command: upload, finalize" \
+  --data-binary "@${IMAGE_PATH}" 2> /dev/null > file_info.json
+
+file_uri=$(jq -r ".file.uri" file_info.json)
+echo file_uri=$file_uri
+
+# Now generate content using that file
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+    -H "x-goog-api-key: $GEMINI_API_KEY" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+      "contents": [{
+        "parts":[
+          {"file_data":{"mime_type": "'"${MIME_TYPE}"'", "file_uri": "'"${file_uri}"'"}},
+          {"text": "Caption this image."}]
+        }]
+      }' 2> /dev/null > response.json
+
+cat response.json
+echo
+
+jq ".candidates[].content.parts[].text" response.json
+
+8 Function calling with the Gemini API
+//python
+from google import genai
+from google.genai import types
+
+# Define the function declaration for the model
+schedule_meeting_function = {
+    "name": "schedule_meeting",
+    "description": "Schedules a meeting with specified attendees at a given time and date.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "attendees": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "List of people attending the meeting.",
+            },
+            "date": {
+                "type": "string",
+                "description": "Date of the meeting (e.g., '2024-07-29')",
+            },
+            "time": {
+                "type": "string",
+                "description": "Time of the meeting (e.g., '15:00')",
+            },
+            "topic": {
+                "type": "string",
+                "description": "The subject or topic of the meeting.",
+            },
+        },
+        "required": ["attendees", "date", "time", "topic"],
+    },
+}
+
+# Configure the client and tools
+client = genai.Client()
+tools = types.Tool(function_declarations=[schedule_meeting_function])
+config = types.GenerateContentConfig(tools=[tools])
+
+# Send request with function declarations
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="Schedule a meeting with Bob and Alice for 03/14/2025 at 10:00 AM about the Q3 planning.",
+    config=config,
+)
+
+# Check for a function call
+if response.candidates[0].content.parts[0].function_call:
+    function_call = response.candidates[0].content.parts[0].function_call
+    print(f"Function to call: {function_call.name}")
+    print(f"Arguments: {function_call.args}")
+    #  In a real app, you would call your function here:
+    #  result = schedule_meeting(**function_call.args)
+else:
+    print("No function call found in the response.")
+    print(response.text)
+
+ //rest
+ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+   -H "x-goog-api-key: $GEMINI_API_KEY" \
+   -H 'Content-Type: application/json' \
+   -X POST \
+   -d '{
+     "contents": [
+       {
+         "role": "user",
+         "parts": [
+           {
+             "text": "Schedule a meeting with Bob and Alice for 03/27/2025 at 10:00 AM about the Q3 planning."
+           }
+         ]
+       }
+     ],
+     "tools": [
+       {
+         "functionDeclarations": [
+           {
+             "name": "schedule_meeting",
+             "description": "Schedules a meeting with specified attendees at a given time and date.",
+             "parameters": {
+               "type": "object",
+               "properties": {
+                 "attendees": {
+                   "type": "array",
+                   "items": {"type": "string"},
+                   "description": "List of people attending the meeting."
+                 },
+                 "date": {
+                   "type": "string",
+                   "description": "Date of the meeting (e.g., '2024-07-29')"
+                 },
+                 "time": {
+                   "type": "string",
+                   "description": "Time of the meeting (e.g., '15:00')"
+                 },
+                 "topic": {
+                   "type": "string",
+                   "description": "The subject or topic of the meeting."
+                 }
+               },
+               "required": ["attendees", "date", "time", "topic"]
+             }
+           }
+         ]
+       }
+     ]
+   }'
+9. Grounding with Google Search
+//python
+from google import genai
+from google.genai import types
+
+# Configure the client
+client = genai.Client()
+
+# Define the grounding tool
+grounding_tool = types.Tool(
+    google_search=types.GoogleSearch()
+)
+
+# Configure generation settings
+config = types.GenerateContentConfig(
+    tools=[grounding_tool]
+)
+
+# Make the request
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="Who won the euro 2024?",
+    config=config,
+)
+
+# Print the grounded response
+print(response.text)
+//rest
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {"text": "Who won the euro 2024?"}
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "google_search": {}
+      }
+    ]
+  }'

@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}SQL Playground - SQL Visualizer{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-play"></i> SQL Playground
+                <small class="text-muted">Interactive SQL Learning Environment</small>
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- SQL Editor -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-code"></i> SQL Editor
+                    </h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" id="executeBtn">
+                            <i class="fas fa-play"></i> Execute
+                        </button>
+                        <button type="button" class="btn btn-info" id="explainBtn">
+                            <i class="fas fa-question-circle"></i> Explain
+                        </button>
+                        <button type="button" class="btn btn-warning" id="improveBtn">
+                            <i class="fas fa-magic"></i> Improve
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="clearBtn">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <textarea id="sqlEditor" placeholder="-- Write your SQL query here
+-- Example: SELECT * FROM employees WHERE salary > 50000
+
+-- Don't worry about creating tables! 
+-- Our AI will automatically generate them with sample data based on your query.
+
+SELECT * FROM employees WHERE department = 'Engineering';"></textarea>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="card shadow-sm mt-4" id="resultsCard" style="display: none;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0" id="resultsTitle">
+                        <i class="fas fa-table"></i> Query Results
+                    </h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="tableViewBtn">
+                            <i class="fas fa-table"></i> Table
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="chartViewBtn">
+                            <i class="fas fa-chart-bar"></i> Chart
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="flowViewBtn">
+                            <i class="fas fa-project-diagram"></i> Flow
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContent">
+                        <!-- Results will be loaded here -->
+                    </div>
+                    
+                    <!-- Execution Info -->
+                    <div id="executionInfo" class="mt-3 p-3 bg-light rounded" style="display: none;">
+                        <h6>Execution Details:</h6>
+                        <div id="executionDetails"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Explanation Section -->
+            <div class="card shadow-sm mt-4" id="explanationCard" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-brain"></i> AI Explanation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="explanationContent">
+                        <!-- AI explanation will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Examples -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Quick Examples
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadExample('basic_select')">
+                            <strong>Basic SELECT</strong><br>
+                            <small class="text-muted">Simple data retrieval</small>
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadExample('joins')">
+                            <strong>JOINs</strong><br>
+                            <small class="text-muted">Combine multiple tables</small>
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadExample('aggregation')">
+                            <strong>Aggregation</strong><br>
+                            <small class="text-muted">GROUP BY and functions</small>
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action" 
+                                onclick="loadExample('subqueries')">
+                            <strong>Subqueries</strong><br>
+                            <small class="text-muted">Nested SELECT statements</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Generated Tables -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table"></i> Available Tables
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if tables %}
+                        <div class="list-group list-group-flush">
+                            {% for table in tables %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ table.table_name }}</h6>
+                                        <small class="text-muted">
+                                            {{ table.sample_data_count }} rows
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            onclick="viewTableData('{{ table.table_name }}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-magic fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small">
+                                No tables yet. Write a query and our AI will create tables automatically!
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Data Modal -->
+<div class="modal fade" id="tableDataModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Table Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="tableDataContent">
+                <!-- Table data will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let sqlEditor;
+let currentQueryId = null;
+
+// Initialize CodeMirror
+document.addEventListener('DOMContentLoaded', function() {
+    sqlEditor = CodeMirror.fromTextArea(document.getElementById('sqlEditor'), {
+        mode: 'text/x-sql',
+        theme: 'material-darker',
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        indentWithTabs: false,
+        indentUnit: 2,
+        height: '300px'
+    });
+    
+    // Set editor height
+    sqlEditor.setSize(null, '300px');
+});
+
+// Example queries
+const examples = {
+    'basic_select': `-- Basic SELECT query
+SELECT employee_id, name, email, salary
+FROM employees
+WHERE salary > 50000
+ORDER BY salary DESC;`,
+    
+    'joins': `-- JOIN multiple tables
+SELECT e.name, d.department_name, e.salary
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+WHERE d.department_name = 'Engineering';`,
+    
+    'aggregation': `-- GROUP BY and aggregation functions
+SELECT department, 
+       COUNT(*) as employee_count,
+       AVG(salary) as avg_salary,
+       MAX(salary) as max_salary
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 5
+ORDER BY avg_salary DESC;`,
+    
+    'subqueries': `-- Subquery example
+SELECT name, salary
+FROM employees
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+    WHERE department = 'Engineering'
+);`
+};
+
+function loadExample(exampleKey) {
+    if (examples[exampleKey] && sqlEditor) {
+        sqlEditor.setValue(examples[exampleKey]);
+    }
+}
+
+// Execute SQL query
+document.getElementById('executeBtn').addEventListener('click', async function() {
+    const query = sqlEditor.getValue().trim();
+    
+    if (!query) {
+        alert('Please enter a SQL query');
+        return;
+    }
+    
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing...';
+    
+    try {
+        const response = await fetch('/execute-sql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: query })
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            showError(result.error);
+        } else {
+            showResults(result);
+        }
+    } catch (error) {
+        showError('Network error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+});
+
+// Explain query
+document.getElementById('explainBtn').addEventListener('click', async function() {
+    const query = sqlEditor.getValue().trim();
+    
+    if (!query) {
+        alert('Please enter a SQL query');
+        return;
+    }
+    
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Explaining...';
+    
+    try {
+        const response = await fetch('/api/explain-query', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: query })
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            showError(result.error);
+        } else {
+            showExplanation(result.explanation);
+        }
+    } catch (error) {
+        showError('Network error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+});
+
+// Improve query
+document.getElementById('improveBtn').addEventListener('click', async function() {
+    const query = sqlEditor.getValue().trim();
+    
+    if (!query) {
+        alert('Please enter a SQL query');
+        return;
+    }
+    
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+    
+    try {
+        const response = await fetch('/api/suggest-improvements', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: query })
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            showError(result.error);
+        } else {
+            showExplanation(result.suggestions);
+        }
+    } catch (error) {
+        showError('Network error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+});
+
+// Clear editor
+document.getElementById('clearBtn').addEventListener('click', function() {
+    if (confirm('Clear the editor?')) {
+        sqlEditor.setValue('');
+        hideResults();
+        hideExplanation();
+    }
+});
+
+function showResults(result) {
+    const resultsCard = document.getElementById('resultsCard');
+    const resultsContent = document.getElementById('resultsContent');
+    const executionInfo = document.getElementById('executionInfo');
+    const executionDetails = document.getElementById('executionDetails');
+    
+    resultsCard.style.display = 'block';
+    
+    // Show execution details
+    let details = `
+        <strong>Query Type:</strong> ${result.query_type}<br>
+        <strong>Execution Time:</strong> ${result.execution_time.toFixed(3)}s<br>
+        <strong>Result Count:</strong> ${result.result_count || 0} rows
+    `;
+    
+    if (result.ai_assisted) {
+        details += `<br><strong>AI Assistance:</strong> Created tables: ${result.tables_created.join(', ')}`;
+    }
+    
+    executionDetails.innerHTML = details;
+    executionInfo.style.display = 'block';
+    
+    // Show results table
+    if (result.data && result.data.length > 0) {
+        let tableHtml = '<div class="table-responsive"><table class="table table-striped">';
+        tableHtml += '<thead><tr>';
+        
+        // Headers
+        result.columns.forEach(column => {
+            tableHtml += `<th>${column}</th>`;
+        });
+        tableHtml += '</tr></thead><tbody>';
+        
+        // Data rows
+        result.data.forEach(row => {
+            tableHtml += '<tr>';
+            result.columns.forEach(column => {
+                tableHtml += `<td>${row[column] || ''}</td>`;
+            });
+            tableHtml += '</tr>';
+        });
+        
+        tableHtml += '</tbody></table></div>';
+        resultsContent.innerHTML = tableHtml;
+    } else {
+        resultsContent.innerHTML = '<div class="alert alert-info">Query executed successfully but returned no rows.</div>';
+    }
+    
+    // Store query ID for visualization
+    currentQueryId = result.query_id;
+}
+
+function showError(error) {
+    const resultsCard = document.getElementById('resultsCard');
+    const resultsContent = document.getElementById('resultsContent');
+    
+    resultsCard.style.display = 'block';
+    resultsContent.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> <strong>Error:</strong> ${error}</div>`;
+}
+
+function showExplanation(explanation) {
+    const explanationCard = document.getElementById('explanationCard');
+    const explanationContent = document.getElementById('explanationContent');
+    
+    explanationCard.style.display = 'block';
+    explanationContent.innerHTML = `<div class="prose">${explanation.replace(/\n/g, '<br>')}</div>`;
+}
+
+function hideResults() {
+    document.getElementById('resultsCard').style.display = 'none';
+}
+
+function hideExplanation() {
+    document.getElementById('explanationCard').style.display = 'none';
+}
+
+async function viewTableData(tableName) {
+    const modal = new bootstrap.Modal(document.getElementById('tableDataModal'));
+    const content = document.getElementById('tableDataContent');
+    
+    content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    modal.show();
+    
+    try {
+        const response = await fetch(`/api/get-table-info/${tableName}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            content.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            return;
+        }
+        
+        let html = `<h5>Table: ${data.table_name}</h5>`;
+        html += '<h6>Schema:</h6>';
+        html += '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>';
+        
+        data.schema.forEach(column => {
+            html += `<tr><td><code>${column.column}</code></td><td>${column.type}</td></tr>`;
+        });
+        
+        html += '</tbody></table></div>';
+        html += `<p class="text-muted">Sample data count: ${data.sample_data_count} rows</p>`;
+        
+        content.innerHTML = html;
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error loading table data</div>';
+    }
+}
+
+// View switching for results
+document.getElementById('tableViewBtn').addEventListener('click', function() {
+    // Implementation for switching to table view
+    console.log('Switch to table view');
+});
+
+document.getElementById('chartViewBtn').addEventListener('click', function() {
+    if (currentQueryId) {
+        loadVisualization(currentQueryId);
+    }
+});
+
+document.getElementById('flowViewBtn').addEventListener('click', function() {
+    // Implementation for showing query flow diagram
+    console.log('Switch to flow view');
+});
+
+async function loadVisualization(queryId) {
+    const resultsContent = document.getElementById('resultsContent');
+    
+    try {
+        const response = await fetch(`/get-query-visualization/${queryId}`);
+        const vizData = await response.json();
+        
+        if (vizData.error) {
+            resultsContent.innerHTML = `<div class="alert alert-danger">Visualization error: ${vizData.error}</div>`;
+            return;
+        }
+        
+        // Create visualization container
+        const vizContainer = document.createElement('div');
+        vizContainer.id = 'visualization-container';
+        vizContainer.style.height = '400px';
+        
+        resultsContent.innerHTML = '';
+        resultsContent.appendChild(vizContainer);
+        
+        // Plot the visualization
+        const plotData = JSON.parse(vizData.chart);
+        Plotly.newPlot('visualization-container', plotData.data, plotData.layout, {responsive: true});
+        
+    } catch (error) {
+        resultsContent.innerHTML = `<div class="alert alert-danger">Error loading visualization: ${error.message}</div>`;
+    }
+}
+</script>
+{% endblock %}
